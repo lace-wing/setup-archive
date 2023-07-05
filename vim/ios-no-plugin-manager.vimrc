@@ -22,9 +22,9 @@ nnoremap <Leader>O O<Esc>
 syntax enable
 
 " backup
-set directory=$HOME/.vim/backup
-set undodir=$HOME/.vim/backup
-set backupdir=$HOME/.vim/backup
+set directory=$HOME/Documents/.vim/backup
+set undodir=$HOME/Documents/.vim/backup
+set backupdir=$HOME/Documents/.vim/backup
 
 " display
 set number
