@@ -1,5 +1,10 @@
+# lang settings
+# nvim will not function properly on UTF-8 chars without these settings
+export LC_ALL=en_GB.UTF-8  
+export LANG=en_GB.UTF-8
+
 export TERM="xterm-256color"
-[[ -n $TMUX ]] && export TERM="screen-256color"
+# [[ -n $TMUX ]] && export TERM="screen-256color"
 # add py 3.11 to PATH
 export PATH="/usr/local/opt/python@3.11/libexec/bin:/usr/local/sbin:$PATH"
 # add dotnet tools to PATH
@@ -10,7 +15,7 @@ export PROMPT="%B%F{#7FBBB3}%n%f@%F{#7FBBB3}%m%f:%F{#DBBC7F}%2~%F{#D699B6}%#%f%b
 
 # enable autocompletion for subcommands
 autoload -Uz compinit && compinit
-# the zsh cmp file says I need the following command but it still works
+# the zsh cmp file says I need the following command but it seems like I don't
 # zstyle ':completion:*:*:git:*' script /usr/local/share/zsh/site-functions/git-completion.bash
 
 export OMNISHARPHOME="$HOME/.config/"
@@ -45,10 +50,10 @@ alias qn="cd ~/Documents/QuickNotes/"
 alias sc="cd ~/Projects/Scratchpads/"
 alias tml="cd ~/Projects/tModLoader/"
 
-alias tnew="tmux new-session -A -s"
+alias tn="tmux new-session -A -s"
 
 export HASTE_SERVER="https://hst.sh"
-# export HASTE_SERVER_TOKEN=""
+export HASTE_SERVER_TOKEN="9dc37f946feefdc2f53e8ed2b6a59e6008d82bda0dfd3d74b8164812f77ee18ebe32a1832126b11b7d4eec65caa4308afb29c93ffcba607bad2352fb74ac158a"
 alias hst="haste | sed -e 's/share\///g' | pbcopy"
 
 source /usr/local/opt/chruby/share/chruby/chruby.sh
@@ -58,3 +63,6 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 chruby 3.2.2
 
+# startup visuals and commands
+
+neofetch
