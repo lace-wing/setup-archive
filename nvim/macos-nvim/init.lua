@@ -26,6 +26,19 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local function charcount()
+  local wc = vim.fn.wordcount()
+  return (wc['visual_chars'] and wc['visual_chars'] or wc['chars']) .. ' chars'
+end
+local function wordcount()
+  local wc = vim.fn.wordcount()
+  return (wc['visual_words'] and wc['visual_words'] or wc['words']) .. ' words'
+end
+local function linecount()
+  local ln = vim.fn.line
+  return (vim.fn.wordcount().visual_chars and (ln(".") - ln("v") + 1) or ln('$')) .. ' lines'
+end
+
 require('lazy').setup({
 
   -- Git related plugins
@@ -108,6 +121,11 @@ require('lazy').setup({
         component_separators = '|',
         section_separators = '',
       },
+      sections = {
+        -- lualine_y = { charcount, wordcount, linecount },
+        lualine_y = {},
+        lualine_z = { 'progress', 'location' }
+      },
     },
   },
 
@@ -184,7 +202,7 @@ require('lazy').setup({
     lazy = false;
     config = function()
       vim.g.macosime_cjk_ime = 'com.apple.inputmethod.SCIM.ITABC'
-      vim.g.macosime_normal_ime = 'com.apple.keylayout.UnicodeHexInput'
+      vim.g.macosime_normal_ime = 'com.apple.keylayout.ABC'
     end,
   },
 
@@ -221,11 +239,14 @@ require('lazy').setup({
   {
     "mfussenegger/nvim-dap-python",
     config = function()
-      require('dap-python').setup('/usr/local/Cellar/python@3.11/3.11.5/bin/python3')
+      require('dap-python').setup('~/.nix-profile/bin/python')
     end,
   },
   {
-    'rcarriga/nvim-dap-ui'
+    'rcarriga/nvim-dap-ui',
+    config = function ()
+      require('dapui').setup()
+    end
   },
   {
     'tigion/nvim-asciidoc-preview',
@@ -247,7 +268,7 @@ require('lazy').setup({
         },
         {
           label = 'Starlight River Zh',
-          url = 'https://github.com/lyc-Lacewing/StarlightRiverZh'
+          url = 'https://github.com/lace-wing/StarlightRiverZh'
         },
       },
     },
@@ -406,6 +427,7 @@ vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+vim.keymap.set('n', '<leader>f', require('telescope.builtin').quickfix, { desc = 'Quick [F]ix' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -554,10 +576,10 @@ local servers = {
   },
 
   omnisharp = {
-    --handlers = {
-      --['textDocument/definition'] = require('omnisharp_extended').handler,
-    --},
-    --cmd = { '~/.local/share/nvim/mason/packages/omnisharp/omnisharp', '--languageserver' , '--hostPID', tostring(pid) },
+    -- handlers = {
+    --   ['textDocument/definition'] = require('omnisharp_extended').handler,
+    -- },
+    -- cmd = { '~/.local/share/nvim/mason/packages/omnisharp/omnisharp', '--languageserver' , '--hostPID', tostring(pid) },
     cmd = { 'dotnet', '/Users/steve/.local/share/nvim/mason/packages/omnisharp/libexec/omnisharp.dll' },
     enable_roslyn_analyzers = true,
     enable_import_completion = true,
@@ -573,14 +595,22 @@ local servers = {
       -- root_dir = require('lspconfig').util.root_pattern('*'),
     },
   },
+
+  nil_ls = {},
+
+  sqlls = {},
 }
 
 -- Setup neovim lua configuration
-require('neodev').setup()
+require('neodev').setup({
+  library = { plugins = { "nvim-dap-ui" }, types = true },
+})
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+capabilities.textDocument.completion.completionItem.snippetSupport = true;
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
@@ -652,6 +682,8 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'buffer' },
+    { name = 'path' },
   },
 }
 
@@ -756,7 +788,11 @@ local dapnmap = function(keys, func, desc)
   vim.keymap.set('n', keys, func, { desc = desc })
 end
 
-dapnmap('<leader>Db', dap.toggle_breakpoint, 'Toggle [B]reakpoint')
+dapnmap('<leader>Dt', dap.toggle_breakpoint, '[T]oggle Breakpoint')
+dapnmap('<leader>Df', dap.step_over, 'Step Over')
+dapnmap('<leader>Di', dap.step_into, 'Step [I]nto')
+dapnmap('<leader>Do', dap.step_out, 'Step [O]ut')
+dapnmap('<leader>Db', dap.step_back, 'Step [B]ack')
 dapnmap('<leader>Dr', dap.continue, '[R]un')
 dapnmap('<leader>Ds', dap.close, '[S]top')
 
